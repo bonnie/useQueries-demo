@@ -1,25 +1,63 @@
-import logo from './logo.svg';
-import './App.css';
+import * as React from "react";
 
-function App() {
+import { QueryClient, QueryClientProvider, useQueries } from "react-query";
+import { ReactQueryDevtools } from "react-query/devtools";
+
+const queryClient = new QueryClient();
+
+const fetchPersonById = (personId) => {
+  console.log(`https://swapi.dev/api/people/${personId + 1}`);
+  return fetch(`https://swapi.dev/api/people/${personId + 1}`).then((res) =>
+    res.json()
+  );
+};
+
+function Example() {
+  // presumably this number (10) would be user update-able
+  const arr = Array.from(new Array(10));
+  const queries = arr.map((_, i) => {
+    return {
+      queryKey: ["person", i],
+      queryFn: () => fetchPersonById(i + 1),
+    };
+  });
+
+  const queryResults = useQueries(queries) || [];
+  console.log("QUERY RESULTS:", queryResults);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>People</h1>
+      <ul>
+        {queryResults.map((query) => (
+          <li key={query.data.name}>{query.data.name}</li>
+        ))}
+      </ul>
+      <h2>Loading</h2>
+      <ul>
+        {queryResults.map((query, i) => (
+          <li key={i}>
+            Query {i}: {query.isLoading ? "loading" : "not loading"}
+          </li>
+        ))}
+      </ul>
+      <h2>Errors</h2>
+      <ul>
+        {queryResults.map((query, i) => (
+          <li key={i}>
+            Query {i}: {query.isError ? query.error : "no error"}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Example />
+      <ReactQueryDevtools initialIsOpen />
+    </QueryClientProvider>
+  );
+}
