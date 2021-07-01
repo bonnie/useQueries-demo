@@ -12,7 +12,7 @@ const fetchPersonById = (personId) => {
   );
 };
 
-function Example() {
+function UseQueriesExample() {
   // presumably this number (10) would be user update-able
   const arr = Array.from(new Array(10));
   const queries = arr.map((_, i) => {
@@ -23,7 +23,6 @@ function Example() {
   });
 
   const queryResults = useQueries(queries) || [];
-  console.log("QUERY RESULTS:", queryResults);
 
   return (
     <div>
@@ -56,7 +55,7 @@ function Example() {
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Example />
+      <UseQueriesExample />
       <ReactQueryDevtools initialIsOpen />
     </QueryClientProvider>
   );
